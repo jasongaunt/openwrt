@@ -1239,3 +1239,47 @@ define Device/zyxel_wre6606
 endef
 # Missing DSA Setup
 #TARGET_DEVICES += zyxel_wre6606
+
+define Device/zyxel_wsq50
+	$(call Device/FitImageLzma)
+	DEVICE_VENDOR := ZyXEL
+	DEVICE_MODEL := WSQ50
+	SOC := qcom-ipq4018
+	KERNEL_SIZE := 4096k
+	ROOTFS_SIZE := 24960k
+	RAS_BOARD := WSQ50
+	RAS_ROOTFS_SIZE := 19840k
+	RAS_VERSION := "$(VERSION_DIST) $(REVISION)"
+	IMAGE/sysupgrade.bin := append-kernel | append-rootfs | pad-rootfs | append-metadata
+	IMAGES += factory.bin
+#	The ZyXEL firmware allows flashing thru the web-gui only when the rootfs is
+#	at least as large as the one of the initial firmware image (not the current
+#	one on the device). This only applies to the Web-UI, the bootlaoder ignores
+#	this minimum-size. However, the larger image can be flashed both ways.
+	IMAGE/factory.bin := append-rootfs | pad-rootfs | pad-to 64k | check-size $$$$(ROOTFS_SIZE) | zyxel-ras-image separate-kernel
+	IMAGE/sysupgrade.bin/squashfs := append-rootfs | pad-rootfs | check-size $$$$(ROOTFS_SIZE) | sysupgrade-tar rootfs=$$$$@ | append-metadata
+	DEVICE_PACKAGES := kmod-usb-ledtrig-usbport ath10k-firmware-qca9984-ct
+endef
+TARGET_DEVICES += zyxel_wsq50
+
+define Device/zyxel_wsq60
+	$(call Device/FitImageLzma)
+	DEVICE_VENDOR := ZyXEL
+	DEVICE_MODEL := WSQ60
+	SOC := qcom-ipq4018
+	KERNEL_SIZE := 4096k
+	ROOTFS_SIZE := 24960k
+	RAS_BOARD := WSQ60
+	RAS_ROOTFS_SIZE := 19840k
+	RAS_VERSION := "$(VERSION_DIST) $(REVISION)"
+	IMAGE/sysupgrade.bin := append-kernel | append-rootfs | pad-rootfs | append-metadata
+	IMAGES += factory.bin
+#	The ZyXEL firmware allows flashing thru the web-gui only when the rootfs is
+#	at least as large as the one of the initial firmware image (not the current
+#	one on the device). This only applies to the Web-UI, the bootlaoder ignores
+#	this minimum-size. However, the larger image can be flashed both ways.
+	IMAGE/factory.bin := append-rootfs | pad-rootfs | pad-to 64k | check-size $$$$(ROOTFS_SIZE) | zyxel-ras-image separate-kernel
+	IMAGE/sysupgrade.bin/squashfs := append-rootfs | pad-rootfs | check-size $$$$(ROOTFS_SIZE) | sysupgrade-tar rootfs=$$$$@ | append-metadata
+	DEVICE_PACKAGES := kmod-usb-ledtrig-usbport ath10k-firmware-qca9984-ct
+endef
+TARGET_DEVICES += zyxel_wsq60

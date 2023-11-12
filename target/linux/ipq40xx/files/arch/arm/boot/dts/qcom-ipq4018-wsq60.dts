@@ -1,0 +1,334 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+
+#include "qcom-ipq4019.dtsi"
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
+#include <dt-bindings/input/linux-event-codes.h>
+#include <dt-bindings/soc/qcom,tcsr.h>
+
+/ {
+	model = "ZyXEL WSQ60";
+	compatible = "zyxel,wsq60";
+
+	chosen {
+		/*
+		 * the vendor u-boot adds root and mtdparts cmdline parameters
+		 * which we don't want... but we have to overwrite them or else
+		 * the kernel will take them at face value.
+		 */
+		bootargs-append = " clk_ignore_unused mtdparts= root=/dev/mmcblk0p8";
+	};
+
+	// aliases {
+	// 	led-boot = &power;
+	// 	led-failsafe = &power;
+	// 	led-running = &power;
+	// 	led-upgrade = &power;
+	// };
+
+	soc {
+		rng@22000 {
+			status = "okay";
+		};
+
+		mdio@90000 {
+			status = "okay";
+		};
+
+		tcsr@1949000 {
+			compatible = "qcom,tcsr";
+			reg = <0x1949000 0x100>;
+			qcom,wifi_glb_cfg = <TCSR_WIFI_GLB_CFG>;
+		};
+
+		tcsr@194b000 {
+			compatible = "qcom,tcsr";
+			reg = <0x194b000 0x100>;
+			qcom,usb-hsphy-mode-select = <TCSR_USB_HSPHY_HOST_MODE>;
+		};
+
+		ess_tcsr@1953000 {
+			compatible = "qcom,tcsr";
+			reg = <0x1953000 0x1000>;
+			qcom,ess-interface-select = <TCSR_ESS_PSGMII>;
+		};
+
+		tcsr@1957000 {
+			compatible = "qcom,tcsr";
+			reg = <0x1957000 0x100>;
+			qcom,wifi_noc_memtype_m0_m2 = <TCSR_WIFI_NOC_MEMTYPE_M0_M2>;
+		};
+
+		usb2@6000000 {
+			status = "okay";
+
+			dwc3@6000000 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				usb2_port1: port@1 {
+					reg = <1>;
+					#trigger-source-cells = <0>;
+				};
+			};
+		};
+
+		usb3@8a00000 {
+			status = "okay";
+
+			dwc3@8a00000 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				usb3_port1: port@1 {
+					reg = <1>;
+					#trigger-source-cells = <0>;
+				};
+
+				usb3_port2: port@2 {
+					reg = <2>;
+					#trigger-source-cells = <0>;
+				};
+			};
+		};
+
+		watchdog@b017000 {
+			status = "okay";
+		};
+	};
+
+	keys {
+		compatible = "gpio-keys";
+
+		reset {
+			label = "reset";
+			gpios = <&tlmm 4 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_RESTART>;
+		};
+	};
+
+	// leds {
+	// 	compatible = "gpio-leds";
+	// 	pinctrl-0 = <&led_pins>;
+	// 	pinctrl-names = "default";
+
+	// 	power: power {
+	// 		label = "green:power";
+	// 		gpios = <&tlmm 3 GPIO_ACTIVE_HIGH>;
+	// 	};
+
+	// 	usb {
+	// 		label = "green:usb";
+	// 		gpios = <&tlmm 0 GPIO_ACTIVE_HIGH>;
+	// 		trigger-sources = <&usb2_port1>, <&usb3_port1>, <&usb3_port2>;
+	// 		linux,default-trigger = "usbport";
+	// 	};
+
+	// 	wlan2g {
+	// 		label = "green:wlan2g";
+	// 		gpios = <&tlmm 58 GPIO_ACTIVE_HIGH>;
+	// 	};
+
+	// 	wlan5g {
+	// 		label = "green:wlan5g";
+	// 		gpios = <&tlmm 5 GPIO_ACTIVE_HIGH>;
+	// 	};
+
+	// 	wps {
+	// 		label = "green:wps";
+	// 		gpios = <&tlmm 1 GPIO_ACTIVE_HIGH>;
+	// 	};
+
+		// power: power {
+		// 	qcom,ledc_blink_indices = <0x00>;
+		// 	qcom,ledc_blink_indices_cnt = <0x00>;
+		// 	qcom,tcsr_ledc_values = <0x320193 0x14720800 0x20d 0x00 0x00 0xffffffff 0x00 0x07 0x7d0010 0x00 0x10482090 0x3fffdfc>;
+		// 	reg-names = "ledc_base_addr";
+		// 	reg = <0x1937000 0x20070>;
+		// 	compatible = "qca,ledc";
+		// 	label = "power";
+		// }
+	// };
+};
+
+&tlmm {
+	serial0_pins: serial0_pinmux {
+		mux {
+			pins = "gpio16", "gpio17";
+			function = "blsp_uart0";
+			bias-disable;
+		};
+	};
+	serial1_pins: serial1_pinmux {
+		mux {
+			pins = "gpio8", "gpio9";
+			function = "blsp_uart1";
+			bias-disable;
+		};
+	};
+	uart1_pins: uart1_pinmux {
+		mux {
+			pins = "gpio8", "gpio9", "gpio10", "gpio11";
+			function = "blsp_uart1";
+			bias-disable;
+		};
+	};
+	spi_0_pins: spi_0_pinmux {
+		mux {
+			function = "blsp_spi0";
+			pins = "gpio13", "gpio14", "gpio15";
+			// drive-strength = <12>;
+			bias-disable;
+		};
+
+		mux_cs {
+			function = "gpio";
+			pins = "gpio12";
+			// drive-strength = <2>;
+			bias-disable;
+			output-low;
+		};
+	};
+	i2c_0_pins: i2c_0_pinmux {
+		mux {
+			bias-disable;
+			function = "blsp_i2c0";
+			pins = "gpio58", "gpio59";
+		};
+	};
+	// led_pins: led_pinmux {
+	// 	mux {
+	// 		pins = "gpio44", "gpio45", "gpio46";
+	// 		drive-strength = <0x8>;
+	// 		bias-pull-up;
+	// 		output-high;
+	// 	};
+	// };
+};
+
+&blsp1_spi1 { /* BLSP1 QUP1 */
+	pinctrl-0 = <&spi_0_pins>;
+	pinctrl-names = "default";
+	status = "okay";
+	cs-gpios = <&tlmm 54 GPIO_ACTIVE_HIGH>;
+
+	flash@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		spi-max-frequency = <50000000>;
+		status = "okay";
+		m25p,fast-read;
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			partition0@0 {
+				label = "0:QSEE";
+				reg = <0x00000000 0x00060000>;
+				read-only;
+			};
+			partition1@60000 {
+				label = "u-boot";
+				reg = <0x00060000 0x00080000>;
+				read-only;
+			};
+			partition2@E0000 {
+				label = "env";
+				reg = <0x000E0000 0x00010000>;
+				read-only;
+			};
+			partition3@F0000 {
+				label = "0:ART";
+				reg = <0x000F0000 0x00010000>;
+				read-only;
+			};
+			partition4@100000 {
+				label = "dualflag";
+				reg = <0x00100000 0x00010000>;
+			};
+			partition5@110000 {
+				label = "CRT";
+				reg = <0x00110000 0x00010000>;
+				read-only;
+			};
+			partition6@120000 {
+				label = "reserved";
+				reg = <0x00120000 0x00260000>;
+			};
+		};
+	};
+};
+
+&blsp1_uart1 {
+	pinctrl-0 = <&serial1_pins>;
+	pinctrl-names = "default";
+	status = "okay";
+};
+
+&cryptobam {
+	status = "okay";
+};
+
+&blsp_dma {
+	status = "okay";
+};
+
+&gmac {
+	status = "okay";
+};
+
+&switch {
+	status = "okay";
+};
+
+&swport1 {
+	status = "okay";
+
+	label = "lan4";
+};
+
+&swport2 {
+	status = "okay";
+
+	label = "lan3";
+};
+
+&swport3 {
+	status = "okay";
+
+	label = "lan2";
+};
+
+&swport4 {
+	status = "okay";
+
+	label = "lan1";
+};
+
+&swport5 {
+	status = "okay";
+};
+
+&wifi0 {
+	status = "okay";
+	qcom,ath10k-calibration-variant = "ZyXEL-WSQ60";
+};
+
+&wifi1 {
+	status = "okay";
+	qcom,ath10k-calibration-variant = "ZyXEL-WSQ60";
+};
+
+&usb3_ss_phy {
+	status = "okay";
+};
+
+&usb3_hs_phy {
+	status = "okay";
+};
+
+&usb2_hs_phy {
+	status = "okay";
+};
