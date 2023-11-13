@@ -7,7 +7,7 @@
 #include <dt-bindings/soc/qcom,tcsr.h>
 
 / {
-	model = "ZyXEL WSQ60";
+	model = "Zyxel WSQ60";
 	compatible = "zyxel,wsq60";
 
 	chosen {
@@ -226,36 +226,36 @@
 
 			partition0@0 {
 				label = "0:QSEE";
-				reg = <0x00000000 0x00060000>;
+				reg = <0x00060000 0x00060000>;
 				read-only;
 			};
-			partition1@60000 {
+			partition1@E0000 {
 				label = "u-boot";
-				reg = <0x00060000 0x00080000>;
+				reg = <0x000E0000 0x00080000>;
 				read-only;
 			};
-			partition2@E0000 {
+			partition2@160000 {
 				label = "env";
-				reg = <0x000E0000 0x00010000>;
+				reg = <0x00160000 0x00010000>;
 				read-only;
 			};
-			partition3@F0000 {
+			partition3@170000 {
 				label = "0:ART";
-				reg = <0x000F0000 0x00010000>;
+				reg = <0x00170000 0x00010000>;
 				read-only;
 			};
-			partition4@100000 {
+			partition4@180000 {
 				label = "dualflag";
-				reg = <0x00100000 0x00010000>;
+				reg = <0x00180000 0x00010000>;
 			};
-			partition5@110000 {
+			partition5@190000 {
 				label = "CRT";
-				reg = <0x00110000 0x00010000>;
+				reg = <0x00190000 0x00010000>;
 				read-only;
 			};
-			partition6@120000 {
+			partition6@1A0000 {
 				label = "reserved";
-				reg = <0x00120000 0x00260000>;
+				reg = <0x001A0000 0x00260000>;
 			};
 		};
 	};
