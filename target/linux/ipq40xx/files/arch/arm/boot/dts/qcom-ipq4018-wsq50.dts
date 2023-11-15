@@ -5,26 +5,22 @@
 #include <dt-bindings/input/input.h>
 #include <dt-bindings/input/linux-event-codes.h>
 #include <dt-bindings/soc/qcom,tcsr.h>
+#include <dt-bindings/leds/common.h>
 
 / {
 	model = "Zyxel WSQ50";
 	compatible = "zyxel,wsq50";
 
-	chosen {
-		/*
-		 * the vendor u-boot adds root and mtdparts cmdline parameters
-		 * which we don't want... but we have to overwrite them or else
-		 * the kernel will take them at face value.
-		 */
-		bootargs-append = " clk_ignore_unused root=/dev/mmcblk0p8 mtdparts=spi0.0:0x60000@0x60000(0:QSEE)ro,0x80000@0xE0000(u-boot)ro,0x10000(env)ro,0x10000(0:ART)ro,0x10000(dualflag),0x10000(CRT)ro,0x260000(reserved)";
+	aliases {
+		led-boot = &status_green;
+		led-failsafe = &status_red;
+		led-running = &status_green;
+		led-upgrade = &status_blue;
 	};
 
-	clocks {
-		gcc_sleep_clk_src: gcc_sleep_clk_src {
-			#clock-cells = <0x00>;
-			clock-frequency = <0x7d00>;
-			compatible = "fixed-clock";
-		};
+	chosen {
+		bootargs-append = " clk_ignore_unused mtdparts= root=/dev/mmcblk0p8";
+		stdout-path = &blsp1_uart1;
 	};
 
 	keys {
@@ -32,75 +28,226 @@
 
 		reset {
 			label = "reset";
-			gpios = <&soc_gpios 0x12 GPIO_ACTIVE_LOW>;
+			gpios = <&tlmm 0x12 GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_RESTART>;
 		};
 	};
 
-	sdhci@7824000 {
-		bus-width = <0x08>;
-		cd-gpios = <&soc_gpios 0x16 0x01>;
-		// clock-names = "core", "iface";
-		// clocks = <0x02 0x2e 0x02 0x2d>;
-		compatible = "qcom,sdhci-msm-v4";
-		// interrupts = <0x0 0x7b 0x00 0x00 0x8a 0x00>;
-		// interrupt-parent = <&soc_gpios>;
-		pinctrl-0 = <&sd_0_pins>;
-		pinctrl-names = "default";
-		reg = <0x7824900 0x11c 0x7824000 0x800>;
-		// sd-ldo-gpios = <&soc_gpios 0x21 0x01>;
-		// vqmmc-supply = <0x53>;
-		status = "okay";
-		non-removable;
-	};
+	soc {
+		rng@22000 {
+			status = "okay";
+		};
 
-	blsp1_uart0: serial@78b0000 {
-		compatible = "qcom,msm-uartdm-v1.4", "qcom,msm-uartdm";
-		reg = <0x78b0000 0x200>;
-		clock = <&gcc GCC_BLSP1_UART2_APPS_CLK>;
-		bit-rate = <0xFF>;
-		status = "disabled";
-		u-boot,dm-pre-reloc;
-	};
+		mdio@90000 {
+			status = "okay";
+		};
 
-	blsp1_spi0: spi@78b6000 {
-		compatible = "qcom,spi-qup-v2.2.1";
-		reg = <0x78b6000 0x600>;
-		clocks = <&gcc GCC_BLSP1_QUP2_SPI_APPS_CLK>;
+		tcsr@1949000 {
+			compatible = "qcom,tcsr";
+			reg = <0x1949000 0x100>;
+			qcom,wifi_glb_cfg = <TCSR_WIFI_GLB_CFG>;
+		};
+
+		tcsr@194b000 {
+			compatible = "qcom,tcsr";
+			reg = <0x194b000 0x100>;
+			qcom,usb-hsphy-mode-select = <TCSR_USB_HSPHY_HOST_MODE>;
+		};
+
+		ess_tcsr@1953000 {
+			compatible = "qcom,tcsr";
+			reg = <0x1953000 0x1000>;
+			qcom,ess-interface-select = <TCSR_ESS_PSGMII>;
+		};
+
+		tcsr@1957000 {
+			compatible = "qcom,tcsr";
+			reg = <0x1957000 0x100>;
+			qcom,wifi_noc_memtype_m0_m2 = <TCSR_WIFI_NOC_MEMTYPE_M0_M2>;
+		};
+
+		usb2@60f8800 {
+			status = "okay";
+		};
+
+		watchdog@b017000 {
+			status = "okay";
+		};
+	};
+};
+
+&tlmm {
+	serial1_pins: serial1_pinmux {
+		mux {
+			pins = "gpio16", "gpio17";
+			function = "blsp_uart1";
+			bias-disable;
+		};
+	};
+	serial2_pins: serial2_pinmux {
+		mux {
+			pins = "gpio8", "gpio9", "gpio10", "gpio11";
+			function = "blsp_uart2";
+			bias-disable;
+		};
+	};
+	led_pins: led_pinmux {
+		mux {
+			output-high;
+			bias-pull-up;
+			drive-strength = <0x08>;
+			pins = "gpio44", "gpio45", "gpio46";
+		};
+	};
+	bluetooth-enable {
+		gpio-hog;
+		gpios = <32 GPIO_ACTIVE_HIGH>;
+		output-high;
+	};
+};
+
+&blsp1_uart1 {
+	pinctrl-0 = <&serial1_pins>;
+	pinctrl-names = "default";
+	status = "okay";
+};
+
+&blsp1_uart2 {
+	pinctrl-0 = <&serial2_pins>;
+	pinctrl-names = "default";
+	status = "okay";
+
+	bluetooth {
+		compatible = "csr,8811";
+
+		enable-gpios = <&tlmm 32 GPIO_ACTIVE_HIGH>;
+	};
+};
+
+&cryptobam {
+	status = "okay";
+};
+
+&blsp_dma {
+	status = "okay";
+};
+
+&gmac {
+	status = "okay";
+};
+
+&switch {
+	status = "okay";
+};
+
+&swport1 {
+	status = "disabled";
+
+	label = "lan4";
+};
+
+&swport2 {
+	status = "okay";
+
+	label = "lan3";
+};
+
+&swport3 {
+	status = "okay";
+
+	label = "lan2";
+};
+
+&swport4 {
+	status = "okay";
+
+	label = "lan1";
+};
+
+&swport5 {
+	status = "okay";
+};
+
+&wifi0 {
+	status = "okay";
+	qcom,ath10k-calibration-variant = "Zyxel-WSQ50";
+};
+
+&wifi1 {
+	status = "okay";
+	qcom,ath10k-calibration-variant = "Zyxel-WSQ50";
+};
+
+&pcie0 { /* QCA9984 */
+	status = "okay";
+	perst-gpio = <&tlmm 38 GPIO_ACTIVE_LOW>;
+	wake-gpio = <&tlmm 40 GPIO_ACTIVE_LOW>;
+	clkreq-gpio = <&tlmm 39 GPIO_ACTIVE_LOW>;
+
+	bridge@0,0 {
+		reg = <0x00000000 0 0 0 0>;
+		#address-cells = <3>;
+		#size-cells = <2>;
+		ranges;
+
+		wifi2: wifi@1,0 {
+			compatible = "qcom,ath10k";
+			reg = <0x00010000 0 0 0 0>;
+			qcom,ath10k-calibration-variant = "Zyxel-WSQ50";
+			qcom,cal-len = <0x2f20>;
+			qcom,cal-offset = <0x9000>;
+			qcom,mtd-name = "0:ART";
+		};
+	};
+};
+
+&usb2_hs_phy {
+	status = "okay";
+};
+
+
+&blsp1_i2c3 {
+	status = "okay";
+
+	tricolor: lp5562@30 {
+		clock-mode = [01];
+		compatible = "ti,lp5562";
+		reg = <0x30>;
 		#address-cells = <1>;
 		#size-cells = <0>;
-		status = "disabled";
-		u-boot,dm-pre-reloc;
-	};
 
-	watchdog@b017000 {
-		clocks = <&gcc_sleep_clk_src>;
-		compatible = "qcom,kpss-wdt-ipq40xx";
-		// interrupt-names = "bark_irq";
-		// interrupts = <0x00 0x03 0x00>;
-		reg = <0xb017000 0x40>;
-		status = "okay";
-		timeout-sec = <0x0a>;
-		wdt_bark_time = <0x10>;
-		wdt_bite_time = <0x14>;
-		wdt_en = <0x08>;
-		wdt_res = <0x04>;
-	};
+		status_red: chan@0 {
+			chan-name = "red:status";
+			led-cur = [c0];
+			// linux,default-trigger = "timer";
+			max-cur = [ff];
+			reg = <0>;
+			color = <LED_COLOR_ID_RED>;
+		};
 
-	wifi@a000000 {
-		core-id = <0x00>;
-		compatible = "qca,wifi-ipq40xx";
-		reg = <0xa000000 0x200000>;
-	};
+		status_green: chan@1 {
+			chan-name = "green:status";
+			led-cur = [5c];
+			// linux,default-trigger = "timer";
+			max-cur = [ff];
+			reg = <1>;
+			color = <LED_COLOR_ID_GREEN>;
+		};
 
-	wifi@a800000 {
-		core-id = <0x01>;
-		compatible = "qca,wifi-ipq40xx";
-		reg = <0xa800000 0x200000>;
+		status_blue: chan@2 {
+			chan-name = "blue:status";
+			led-cur = [ff];
+			// linux,default-trigger = "timer";
+			max-cur = [ff];
+			reg = <2>;
+			color = <LED_COLOR_ID_BLUE>;
+		};
 	};
 };
 
 &blsp1_spi1 {
+	status = "okay";
+
 	m25p80@0 {
 		compatible = "jedec,spi-nor", "n25q128a11";
 		spi-max-frequency = <24000000>;
@@ -148,120 +295,7 @@
 	};
 };
 
-&soc_gpios {
-	led_pins: led_pinmux {
-		mux {
-			output-high;
-			bias-pull-up;
-			drive-strength = <0x08>;
-			pins = "gpio44", "gpio45", "gpio46";
-		};
-	};
-
-	sd_0_pins: sd_0_pinmux {
-		sd7 {
-			vm-enable;
-			drive-type = <0x01>;
-			pull-res = <0x02>;
-			function = "sdio7";
-			pins = "gpio32";
-		};
-
-		sd6 {
-			vm-enable;
-			drive-type = <0x01>;
-			pull-res = <0x02>;
-			function = "sdio6";
-			pins = "gpio31";
-		};
-
-		sd5 {
-			vm-enable;
-			drive-type = <0x01>;
-			pull-res = <0x02>;
-			function = "sdio5";
-			pins = "gpio30";
-		};
-
-		sd4 {
-			vm-enable;
-			drive-type = <0x01>;
-			pull-res = <0x02>;
-			function = "sdio4";
-			pins = "gpio29";
-		};
-
-		sdcmd {
-			vm-enable;
-			drive-type = <0x01>;
-			pull-res = <0x02>;
-			function = "sdio_cmd";
-			pins = "gpio28";
-		};
-
-		sdclk {
-			vm-enable;
-			drive-type = <0x07>;
-			pull-res = <0x02>;
-			function = "sdio_clk";
-			pins = "gpio27";
-		};
-
-		sd3 {
-			vm-enable;
-			drive-type = <0x01>;
-			pull-res = <0x02>;
-			function = "sdio3";
-			pins = "gpio26";
-		};
-
-		sd2 {
-			vm-enable;
-			drive-type = <0x01>;
-			pull-res = <0x02>;
-			function = "sdio2";
-			pins = "gpio25";
-		};
-
-		sd1 {
-			vm-enable;
-			drive-type = <0x01>;
-			pull-res = <0x02>;
-			function = "sdio1";
-			pins = "gpio24";
-		};
-
-		sd0 {
-			vm-enable;
-			drive-type = <0x01>;
-			pull-res = <0x02>;
-			function = "sdio0";
-			pins = "gpio23";
-		};
-	};
-
-	serial_pins: serial_pinmux {
-		mux {
-			pins = "gpio60", "gpio61";
-			function = "blsp_uart0";
-			bias-disable;
-		};
-	};
-
-	spi_0_pins: spi-0-pinmux {
-		pinmux {
-			function = "blsp_spi0";
-			pins = "gpio13", "gpio14", "gpio15";
-			bias-disable;
-		};
-
-		pinmux_cs {
-			function = "gpio";
-			pins = "gpio12";
-			bias-disable;
-			output-high;
-		};
-	};
-
-
+&sdhci {
+	status = "okay";
+	non-removable;
 };

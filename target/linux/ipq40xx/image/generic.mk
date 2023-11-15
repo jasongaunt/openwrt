@@ -1258,7 +1258,10 @@ define Device/zyxel_wsq50
 #	this minimum-size. However, the larger image can be flashed both ways.
 	IMAGE/factory.bin := append-rootfs | pad-rootfs | pad-to 64k | check-size $$$$(ROOTFS_SIZE) | zyxel-ras-image separate-kernel
 	IMAGE/sysupgrade.bin/squashfs := append-rootfs | pad-rootfs | check-size $$$$(ROOTFS_SIZE) | sysupgrade-tar rootfs=$$$$@ | append-metadata
-	DEVICE_PACKAGES := kmod-usb-ledtrig-usbport ath10k-firmware-qca9984-ct
+	DEVICE_PACKAGES := \
+		ath10k-firmware-qca4019-ct ath10k-firmware-qca9984-ct uboot-envtools \
+		kmod-fs-ext4 kmod-mmc kmod-fs-squashfs e2fsprogs kmod-bluetooth \
+		kmod-usb-serial kmod-fs-vfat kmod-usb-storage kmod-usb-storage-uas usbutils kmod-usb-ledtrig-usbport bluez-tools
 endef
 TARGET_DEVICES += zyxel_wsq50
 
@@ -1280,6 +1283,9 @@ define Device/zyxel_wsq60
 #	this minimum-size. However, the larger image can be flashed both ways.
 	IMAGE/factory.bin := append-rootfs | pad-rootfs | pad-to 64k | check-size $$$$(ROOTFS_SIZE) | zyxel-ras-image separate-kernel
 	IMAGE/sysupgrade.bin/squashfs := append-rootfs | pad-rootfs | check-size $$$$(ROOTFS_SIZE) | sysupgrade-tar rootfs=$$$$@ | append-metadata
-	DEVICE_PACKAGES := kmod-usb-ledtrig-usbport ath10k-firmware-qca9984-ct
+	DEVICE_PACKAGES := \
+		ath10k-firmware-qca4019-ct ath10k-firmware-qca9984-ct uboot-envtools \
+		kmod-fs-ext4 kmod-mmc kmod-fs-squashfs e2fsprogs kmod-bluetooth \
+		kmod-usb-serial kmod-fs-vfat kmod-usb-storage kmod-usb-storage-uas usbutils kmod-usb-ledtrig-usbport bluez-tools
 endef
 TARGET_DEVICES += zyxel_wsq60
