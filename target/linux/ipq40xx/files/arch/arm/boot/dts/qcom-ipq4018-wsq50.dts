@@ -70,6 +70,10 @@
 			status = "okay";
 		};
 
+		usb3@8af8800 {
+			status = "okay";
+		};
+
 		watchdog@b017000 {
 			status = "okay";
 		};
@@ -205,6 +209,9 @@
 	status = "okay";
 };
 
+&usb3_hs_phy {
+	status = "okay";
+};
 
 &blsp1_i2c3 {
 	status = "okay";
