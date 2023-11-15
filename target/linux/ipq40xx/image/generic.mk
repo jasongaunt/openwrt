@@ -1260,8 +1260,7 @@ define Device/zyxel_wsq50
 	IMAGE/sysupgrade.bin/squashfs := append-rootfs | pad-rootfs | check-size $$$$(ROOTFS_SIZE) | sysupgrade-tar rootfs=$$$$@ | append-metadata
 	DEVICE_PACKAGES := \
 		ath10k-firmware-qca4019-ct ath10k-firmware-qca9984-ct uboot-envtools \
-		kmod-fs-ext4 kmod-mmc kmod-fs-squashfs e2fsprogs kmod-bluetooth \
-		kmod-usb-serial kmod-fs-vfat kmod-usb-storage kmod-usb-storage-uas usbutils kmod-usb-ledtrig-usbport bluez-tools
+		kmod-fs-ext4 kmod-mmc kmod-fs-squashfs e2fsprogs kmod-ath3k kmod-bluetooth
 endef
 TARGET_DEVICES += zyxel_wsq50
 
@@ -1285,7 +1284,6 @@ define Device/zyxel_wsq60
 	IMAGE/sysupgrade.bin/squashfs := append-rootfs | pad-rootfs | check-size $$$$(ROOTFS_SIZE) | sysupgrade-tar rootfs=$$$$@ | append-metadata
 	DEVICE_PACKAGES := \
 		ath10k-firmware-qca4019-ct ath10k-firmware-qca9984-ct uboot-envtools \
-		kmod-fs-ext4 kmod-mmc kmod-fs-squashfs e2fsprogs kmod-bluetooth \
-		kmod-usb-serial kmod-fs-vfat kmod-usb-storage kmod-usb-storage-uas usbutils kmod-usb-ledtrig-usbport bluez-tools
+		kmod-fs-ext4 kmod-mmc kmod-fs-squashfs e2fsprogs kmod-ath3k kmod-bluetooth
 endef
 TARGET_DEVICES += zyxel_wsq60

@@ -213,6 +213,10 @@
 	status = "okay";
 };
 
+&usb3_ss_phy {
+	status = "okay";
+};
+
 &blsp1_i2c3 {
 	status = "okay";
 
