@@ -11,15 +11,14 @@ get_dt_led_path() {
 		ledlist="${ledlist} ${ledpath}"
 	done
 
-	echo "$ledlist" | sed 's/ /\n/g' | sort | uniq
+	echo "$ledlist" | tr ' ' '\n' | sort -u
 }
 
 get_dt_led() {
 	local label
-	local ledpaths=$(get_dt_led_path $1 | sed 's/ /\n/g')
 	local ledpathlist
 
-	for ledpath in ${ledpaths}; do
+	for ledpath in $(get_dt_led_path $1 | tr ' ' '\n'); do
 		[ -n "$ledpath" ] && \
 			label=$(cat "$ledpath/label" 2>/dev/null) || \
 			label=$(cat "$ledpath/chan-name" 2>/dev/null) || \
@@ -31,7 +30,7 @@ get_dt_led() {
 }
 
 led_set_attr() {
-	for ledpath in $(echo "$1" | sed 's/ /\n/g'); do
+	for ledpath in $1; do
 		[ -f "/sys/class/leds/$ledpath/$2" ] && echo "$3" > "/sys/class/leds/$ledpath/$2"
 	done
 }
@@ -54,9 +53,8 @@ led_off() {
 
 status_led_restore_trigger() {
 	local trigger
-	local ledpaths=$(get_dt_led_path $1 | sed 's/ /\n/g')
 
-	for ledpath in ${ledpaths}; do
+	for ledpath in $(get_dt_led_path $1); do
 		[ -n "$ledpath" ] && \
 			trigger=$(cat "$ledpath/linux,default-trigger" 2>/dev/null)
 
