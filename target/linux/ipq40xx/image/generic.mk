@@ -1246,9 +1246,9 @@ define Device/zyxel_wsq50
 	DEVICE_MODEL := WSQ50
 	SOC := qcom-ipq4018
 	KERNEL_SIZE := 4096k
-	ROOTFS_SIZE := 24960k
+	ROOTFS_SIZE := 65536k
 	RAS_BOARD := WSQ50
-	RAS_ROOTFS_SIZE := 19840k
+	RAS_ROOTFS_SIZE := 24576k
 	RAS_VERSION := "$(VERSION_DIST) $(REVISION)"
 	IMAGE/sysupgrade.bin := append-kernel | append-rootfs | pad-rootfs | append-metadata
 	IMAGES += factory.bin
@@ -1259,8 +1259,9 @@ define Device/zyxel_wsq50
 	IMAGE/factory.bin := append-rootfs | pad-rootfs | pad-to 64k | check-size $$$$(ROOTFS_SIZE) | zyxel-ras-image separate-kernel
 	IMAGE/sysupgrade.bin/squashfs := append-rootfs | pad-rootfs | check-size $$$$(ROOTFS_SIZE) | sysupgrade-tar rootfs=$$$$@ | append-metadata
 	DEVICE_PACKAGES := \
-		ath10k-firmware-qca4019-ct ath10k-firmware-qca9984-ct uboot-envtools \
-		kmod-fs-ext4 kmod-mmc kmod-fs-squashfs e2fsprogs kmod-ath3k kmod-bluetooth
+		ath10k-firmware-qca4019-ct ath10k-firmware-qca9984-ct \
+		kmod-fs-ext4 kmod-mmc kmod-fs-squashfs tune2fs e2fsprogs losetup \
+		kmod-ath3k kmod-bluetooth uboot-envtools
 endef
 TARGET_DEVICES += zyxel_wsq50
 
@@ -1270,9 +1271,9 @@ define Device/zyxel_wsq60
 	DEVICE_MODEL := WSQ60
 	SOC := qcom-ipq4018
 	KERNEL_SIZE := 4096k
-	ROOTFS_SIZE := 24960k
+	ROOTFS_SIZE := 65536k
 	RAS_BOARD := WSQ60
-	RAS_ROOTFS_SIZE := 19840k
+	RAS_ROOTFS_SIZE := 24576k
 	RAS_VERSION := "$(VERSION_DIST) $(REVISION)"
 	IMAGE/sysupgrade.bin := append-kernel | append-rootfs | pad-rootfs | append-metadata
 	IMAGES += factory.bin
@@ -1283,7 +1284,8 @@ define Device/zyxel_wsq60
 	IMAGE/factory.bin := append-rootfs | pad-rootfs | pad-to 64k | check-size $$$$(ROOTFS_SIZE) | zyxel-ras-image separate-kernel
 	IMAGE/sysupgrade.bin/squashfs := append-rootfs | pad-rootfs | check-size $$$$(ROOTFS_SIZE) | sysupgrade-tar rootfs=$$$$@ | append-metadata
 	DEVICE_PACKAGES := \
-		ath10k-firmware-qca4019-ct ath10k-firmware-qca9984-ct uboot-envtools \
-		kmod-fs-ext4 kmod-mmc kmod-fs-squashfs e2fsprogs kmod-ath3k kmod-bluetooth
+		ath10k-firmware-qca4019-ct ath10k-firmware-qca9984-ct \
+		kmod-fs-ext4 kmod-mmc kmod-fs-squashfs tune2fs e2fsprogs losetup \
+		kmod-ath3k kmod-bluetooth uboot-envtools
 endef
 TARGET_DEVICES += zyxel_wsq60

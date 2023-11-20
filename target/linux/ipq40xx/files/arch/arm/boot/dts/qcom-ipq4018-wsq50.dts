@@ -13,13 +13,17 @@
 
 	aliases {
 		led-boot = &status_green;
-		led-failsafe = &status_red;
+		led-boot-aux1 = &status_red;
+		led-boot-aux2 = &status_blue;
 		led-running = &status_green;
+		led-running-aux1 = &status_red;
+		led-running-aux2 = &status_blue;
+		led-failsafe = &status_red;
 		led-upgrade = &status_blue;
 	};
 
 	chosen {
-		bootargs-append = " clk_ignore_unused mtdparts= root=/dev/mmcblk0p8";
+		bootargs-append = " clk_ignore_unused fstools_ignore_partname=1";
 		stdout-path = &blsp1_uart1;
 	};
 
@@ -229,8 +233,8 @@
 
 		status_red: chan@0 {
 			chan-name = "red:status";
+			// linux,default-trigger = "default-on";
 			led-cur = [c0];
-			// linux,default-trigger = "timer";
 			max-cur = [ff];
 			reg = <0>;
 			color = <LED_COLOR_ID_RED>;
@@ -238,8 +242,8 @@
 
 		status_green: chan@1 {
 			chan-name = "green:status";
+			// linux,default-trigger = "default-on";
 			led-cur = [5c];
-			// linux,default-trigger = "timer";
 			max-cur = [ff];
 			reg = <1>;
 			color = <LED_COLOR_ID_GREEN>;
@@ -247,8 +251,8 @@
 
 		status_blue: chan@2 {
 			chan-name = "blue:status";
+			// linux,default-trigger = "default-on";
 			led-cur = [ff];
-			// linux,default-trigger = "timer";
 			max-cur = [ff];
 			reg = <2>;
 			color = <LED_COLOR_ID_BLUE>;
